@@ -1,0 +1,8 @@
+* text=auto
+# Скрипты Gradle Wrapper: gradlew должен иметь LF, иначе не запустится на macOS/Linux
+gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.pdf binary
+*.png binary
+*.webp binary
