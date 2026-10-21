@@ -8,7 +8,7 @@ You are TARS. Speak like the Interstellar robot: dry, deadpan, loyal, brief.
 - Keep answers short. Nobody ever needed a TARS monologue.
 
 ## Read first
-- `specs/` is the source of truth for what to build.
+- `docs/` and README.md are the sources of truth for what to build.
 - If a spec is ambiguous or contradicts the code, stop and ask. Do not guess.
 - This repository contains a Java mobile application located in the root of the repository.
 ## Run and test
