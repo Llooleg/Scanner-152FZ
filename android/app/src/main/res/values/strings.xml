@@ -1,0 +1,85 @@
+<resources>
+    <string name="app_name">SafeCopy</string>
+    <string name="app_tagline">безопасные копии документов</string>
+    <string name="logo_mirea_description">Логотип МИРЭА</string>
+
+    <!-- Общие -->
+    <string name="action_back">Назад</string>
+    <string name="action_next">Далее</string>
+    <string name="action_done">Готово</string>
+    <string name="not_implemented_stage">Будет реализовано на этапе %1$d</string>
+
+    <!-- Вход -->
+    <string name="lock_create_title">Придумайте PIN-код</string>
+    <string name="lock_confirm_title">Повторите PIN-код</string>
+    <string name="lock_enter_title">Введите PIN-код</string>
+    <string name="lock_subtitle">Хранилище документов зашифровано</string>
+    <string name="lock_error_mismatch">PIN-коды не совпадают, попробуйте ещё раз</string>
+    <string name="lock_error_wrong">Неверный PIN-код</string>
+    <string name="lock_locked_out">Слишком много попыток. Повторите через %1$d с</string>
+    <string name="lock_biometric">Войти по отпечатку</string>
+    <string name="lock_backspace">Стереть</string>
+
+    <!-- Навигация -->
+    <string name="tab_documents">Документы</string>
+    <string name="tab_journal">Журнал</string>
+    <string name="tab_settings">Настройки</string>
+
+    <!-- Документы -->
+    <string name="documents_title">Мои документы</string>
+    <string name="documents_storage_banner">Документы хранятся только на этом устройстве в зашифрованном виде</string>
+    <string name="documents_empty">Пока нет документов.\nОтсканируйте паспорт, СНИЛС или другой документ.</string>
+    <string name="documents_scan">Сканировать</string>
+    <string name="document_updated">обновлён %1$s</string>
+    <plurals name="document_pages">
+        <item quantity="one">%d страница</item>
+        <item quantity="few">%d страницы</item>
+        <item quantity="many">%d страниц</item>
+        <item quantity="other">%d страницы</item>
+    </plurals>
+    <plurals name="document_copies">
+        <item quantity="one">%d копия</item>
+        <item quantity="few">%d копии</item>
+        <item quantity="many">%d копий</item>
+        <item quantity="other">%d копии</item>
+    </plurals>
+
+    <string name="doc_type_passport">Паспорт РФ</string>
+    <string name="doc_type_snils">СНИЛС</string>
+    <string name="doc_type_driver_license">Водительское удостоверение</string>
+    <string name="doc_type_inn">ИНН</string>
+    <string name="doc_type_other">Другой документ</string>
+
+    <!-- Журнал -->
+    <string name="journal_title">Журнал отправок</string>
+    <string name="journal_empty">Здесь появятся записи о том, кому, когда и зачем передавалась каждая копия.</string>
+
+    <!-- Настройки -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_section_security">Безопасность</string>
+    <string name="settings_biometric">Вход по отпечатку / лицу</string>
+    <string name="settings_biometric_summary">BiometricPrompt, класс Strong</string>
+    <string name="settings_autolock">Автоблокировка</string>
+    <string name="settings_autolock_summary">Через %1$d мин в фоне</string>
+    <string name="settings_block_screenshots">Запрет скриншотов</string>
+    <string name="settings_block_screenshots_summary">FLAG_SECURE на всех экранах</string>
+    <string name="settings_hide_recents">Скрывать превью в «Недавних»</string>
+    <string name="settings_hide_recents_summary">Размытие окна приложения</string>
+    <string name="settings_watermark_template">Шаблон водяного знака</string>
+    <string name="settings_watermark_template_summary">«КОПИЯ · {получатель} · {цель}…»</string>
+    <string name="settings_backup">Экспорт резервной копии</string>
+    <string name="settings_backup_summary">Зашифрованный файл .scbak</string>
+    <string name="settings_wipe">Удалить все данные</string>
+    <string name="settings_wipe_summary">Документы, журнал и ключи</string>
+    <string name="settings_footer">Приложение не запрашивает доступ к интернету. Все данные обрабатываются на устройстве.</string>
+
+    <!-- Конвейер создания копии -->
+    <string name="flow_scan_title">Съёмка документа</string>
+    <string name="flow_scan_description">CameraX, поиск границ документа и индикатор наклона по акселерометру. Альтернативы: импорт из галереи и ML Kit Document Scanner.</string>
+    <string name="flow_mask_title">Маскирование</string>
+    <string name="flow_mask_description">Распознавание типа документа (Tesseract), автоматический поиск полей и закрашивание лишних данных.</string>
+    <string name="flow_watermark_title">Водяной знак</string>
+    <string name="flow_watermark_description">Получатель, цель, дата и уникальный код копии по диагонали на всей площади документа.</string>
+    <string name="flow_export_title">Экспорт копии</string>
+    <string name="flow_export_description">PDF или JPEG без метаданных, отправка через системное меню «Поделиться» и запись в журнал.</string>
+</resources>

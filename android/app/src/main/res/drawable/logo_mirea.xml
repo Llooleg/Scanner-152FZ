@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ЗАГЛУШКА. Замените на настоящий логотип МИРЭА:
+     удалите этот файл и положите logo_mirea.png (или векторный logo_mirea.xml) в res/drawable. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <path
+        android:pathData="M60,4 a56,56 0 1,1 0,112 a56,56 0 1,1 0,-112"
+        android:strokeWidth="2"
+        android:strokeColor="#FF9AA5A4"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M60,30 L84,40 L84,60 C84,76 73,88 60,92 C47,88 36,76 36,60 L36,40 Z"
+        android:fillColor="#FF0E6B67" />
+</vector>
