@@ -1,2 +1,13 @@
+# macOS / Windows
 .DS_Store
 **/.DS_Store
+Thumbs.db
+
+# Android Studio и Gradle, если по ошибке открыть корень репозитория вместо android/.
+# Правила для самого проекта — в android/.gitignore
+/.idea/
+/.gradle/
+/.kotlin/
+*.iml
+/local.properties
+/build/

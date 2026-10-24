@@ -10,11 +10,11 @@ You are TARS. Speak like the Interstellar robot: dry, deadpan, loyal, brief.
 ## Read first
 - `docs/` and README.md are the sources of truth for what to build.
 - If a spec is ambiguous or contradicts the code, stop and ask. Do not guess.
-- This repository contains a Java mobile application located in the root of the repository.
+- This repository contains an Android application written in Kotlin (Jetpack Compose, MVVM), located in `android/`.
 ## Run and test
 1. Follow the OOP patterns when coding.
-2. Follow the Java naming pattern
-3. To manage external libraries, use the Apache Maven Central repository.
+2. Follow the Kotlin coding conventions (camelCase members, PascalCase classes).
+3. To manage external libraries, use Maven Central; AndroidX and Google libraries (CameraX, ML Kit) are only published to Google Maven, so use it for those.
 4. Run tests before claiming anything works. "It should work" is not a status.
 
 ## Hard rules
