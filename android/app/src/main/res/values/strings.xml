@@ -75,11 +75,38 @@
 
     <!-- Конвейер создания копии -->
     <string name="flow_scan_title">Съёмка документа</string>
-    <string name="flow_scan_description">CameraX, поиск границ документа и индикатор наклона по акселерометру. Альтернативы: импорт из галереи и ML Kit Document Scanner.</string>
     <string name="flow_mask_title">Маскирование</string>
     <string name="flow_mask_description">Распознавание типа документа (Tesseract), автоматический поиск полей и закрашивание лишних данных.</string>
     <string name="flow_watermark_title">Водяной знак</string>
     <string name="flow_watermark_description">Получатель, цель, дата и уникальный код копии по диагонали на всей площади документа.</string>
     <string name="flow_export_title">Экспорт копии</string>
     <string name="flow_export_description">PDF или JPEG без метаданных, отправка через системное меню «Поделиться» и запись в журнал.</string>
+    <string name="flow_pages_received">Получено страниц: %1$d</string>
+
+    <!-- Съёмка -->
+    <string name="scan_page_number">Страница %1$d</string>
+    <string name="scan_hint_searching">Наведите камеру на документ</string>
+    <string name="scan_hint_stabilizing">Документ найден, держите телефон неподвижно</string>
+    <string name="scan_hint_tilted">Выровняйте телефон: наклон %1$d°</string>
+    <string name="scan_hint_countdown">Границы найдены · съёмка через %1$d с</string>
+    <string name="scan_hint_manual">Документ найден — нажмите кнопку съёмки</string>
+    <string name="scan_hint_processing">Обработка снимка…</string>
+    <string name="scan_hint_next_page">Переверните страницу или уберите документ из кадра</string>
+    <string name="scan_hint_max_pages">Снято максимум страниц: %1$d</string>
+    <string name="scan_tilt">Наклон %1$d°</string>
+    <string name="scan_auto">АВТО</string>
+    <string name="scan_gallery">Импорт из галереи</string>
+    <string name="scan_shutter">Сделать снимок</string>
+    <string name="scan_torch">Фонарик</string>
+    <string name="scan_system_scanner">Системный сканер</string>
+    <string name="scan_next">Далее (%1$d)</string>
+    <string name="scan_remove_page">Удалить страницу %1$d</string>
+    <string name="scan_permission_title">Нужен доступ к камере</string>
+    <string name="scan_permission_text">Камера нужна только для съёмки документа, снимки не покидают телефон. Можно также импортировать фото из галереи или воспользоваться системным сканером.</string>
+    <string name="scan_permission_grant">Разрешить доступ</string>
+    <string name="scan_permission_settings">Открыть настройки</string>
+    <string name="scan_error_camera">Камера недоступна</string>
+    <string name="scan_error_capture">Не удалось сделать снимок</string>
+    <string name="scan_error_import">Не удалось загрузить изображение</string>
+    <string name="scan_error_scanner">Системный сканер недоступен: нужны сервисы Google Play</string>
 </resources>

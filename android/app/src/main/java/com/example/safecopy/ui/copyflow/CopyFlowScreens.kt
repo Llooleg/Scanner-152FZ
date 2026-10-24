@@ -1,13 +1,18 @@
 package com.example.safecopy.ui.copyflow
 
+import android.graphics.Bitmap
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Button
@@ -20,6 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,31 +36,43 @@ import com.example.safecopy.R
 import com.example.safecopy.ui.theme.SafecopyTheme
 
 /*
- * Заглушки шагов конвейера «Съёмка → Маскирование → Водяной знак → Экспорт».
+ * Заглушки шагов конвейера «Маскирование → Водяной знак → Экспорт» (съёмка — ui/scan/ScanScreen.kt).
  * Каждая будет заменена полноценным экраном со своей ViewModel. Общее состояние конвейера
- * (страницы, маски, параметры знака) будет храниться в CopyFlowViewModel, привязанной
- * к вложенному графу навигации, а не передаваться через аргументы маршрутов.
+ * хранится в CopyFlowViewModel, привязанной к вложенному графу навигации.
  */
 
 @Composable
-fun ScanScreen(onBack: () -> Unit, onNext: () -> Unit) = FlowStepPlaceholder(
-    titleRes = R.string.flow_scan_title,
-    descriptionRes = R.string.flow_scan_description,
-    stage = 3,
-    actionRes = R.string.action_next,
-    onBack = onBack,
-    onAction = onNext,
-)
-
-@Composable
-fun MaskScreen(onBack: () -> Unit, onNext: () -> Unit) = FlowStepPlaceholder(
+fun MaskScreen(pages: List<Bitmap>, onBack: () -> Unit, onNext: () -> Unit) = FlowStepPlaceholder(
     titleRes = R.string.flow_mask_title,
     descriptionRes = R.string.flow_mask_description,
     stage = 4,
     actionRes = R.string.action_next,
     onBack = onBack,
     onAction = onNext,
-)
+) {
+    // Временно: показываем страницы, полученные со съёмки, чтобы было видно, что конвейер передаёт данные.
+    Text(
+        text = stringResource(R.string.flow_pages_received, pages.size),
+        style = MaterialTheme.typography.titleSmall,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    Spacer(Modifier.height(12.dp))
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+        pages.forEachIndexed { index, page ->
+            Image(
+                bitmap = page.asImageBitmap(),
+                contentDescription = stringResource(R.string.scan_page_number, index + 1),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+            )
+        }
+    }
+    Spacer(Modifier.height(24.dp))
+}
 
 @Composable
 fun WatermarkScreen(onBack: () -> Unit, onNext: () -> Unit) = FlowStepPlaceholder(
@@ -83,6 +103,7 @@ private fun FlowStepPlaceholder(
     @StringRes actionRes: Int,
     onBack: () -> Unit,
     onAction: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -120,6 +141,7 @@ private fun FlowStepPlaceholder(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
+            content()
             Spacer(Modifier.height(32.dp))
             Button(onClick = onAction, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(actionRes))
@@ -131,5 +153,5 @@ private fun FlowStepPlaceholder(
 @Preview(showBackground = true)
 @Composable
 private fun FlowStepPlaceholderPreview() {
-    SafecopyTheme { MaskScreen(onBack = {}, onNext = {}) }
+    SafecopyTheme { MaskScreen(pages = emptyList(), onBack = {}, onNext = {}) }
 }

@@ -16,9 +16,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -31,12 +35,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.safecopy.R
 import com.example.safecopy.ui.copyflow.ExportScreen
 import com.example.safecopy.ui.copyflow.MaskScreen
-import com.example.safecopy.ui.copyflow.ScanScreen
+import com.example.safecopy.ui.copyflow.CopyFlowViewModel
 import com.example.safecopy.ui.copyflow.WatermarkScreen
 import com.example.safecopy.ui.documents.DocumentsRouteScreen
 import com.example.safecopy.ui.journal.JournalScreen
 import com.example.safecopy.ui.launch.LaunchRouteScreen
 import com.example.safecopy.ui.lock.LockRouteScreen
+import com.example.safecopy.ui.scan.ScanRouteScreen
 import com.example.safecopy.ui.settings.SettingsRouteScreen
 import kotlin.reflect.KClass
 
@@ -125,14 +130,20 @@ fun SafeCopyNavHost(
             composable<SettingsRoute> { SettingsRouteScreen() }
 
             navigation<CopyFlowRoute>(startDestination = ScanRoute) {
-                composable<ScanRoute> {
-                    ScanScreen(
+                composable<ScanRoute> { entry ->
+                    val flow = navController.copyFlowViewModel(entry)
+                    ScanRouteScreen(
                         onBack = { navController.popBackStack() },
-                        onNext = { navController.navigate(MaskRoute) },
+                        onPagesCaptured = { pages ->
+                            flow.setPages(pages)
+                            navController.navigate(MaskRoute)
+                        },
                     )
                 }
-                composable<MaskRoute> {
+                composable<MaskRoute> { entry ->
+                    val pages by navController.copyFlowViewModel(entry).pages.collectAsStateWithLifecycle()
                     MaskScreen(
+                        pages = pages,
                         onBack = { navController.popBackStack() },
                         onNext = { navController.navigate(WatermarkRoute) },
                     )
@@ -153,6 +164,13 @@ fun SafeCopyNavHost(
             }
         }
     }
+}
+
+/** ViewModel конвейера, общая для всех его экранов: привязана к записи вложенного графа CopyFlowRoute. */
+@Composable
+private fun NavHostController.copyFlowViewModel(entry: NavBackStackEntry): CopyFlowViewModel {
+    val flowEntry = remember(entry) { getBackStackEntry(CopyFlowRoute) }
+    return hiltViewModel(flowEntry)
 }
 
 private fun NavDestination?.isOn(tab: TopLevelTab): Boolean =

@@ -7,6 +7,12 @@
         android:name="android.permission.INTERNET"
         tools:node="remove" />
 
+    <!-- Съёмка документа (этап 3). Камера необязательна: без неё остаются импорт из галереи и системный сканер. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false" />
+
     <!-- allowBackup=false и правила извлечения данных: документы не попадают
          ни в облачный бэкап Google, ни в перенос на другое устройство. -->
     <application
