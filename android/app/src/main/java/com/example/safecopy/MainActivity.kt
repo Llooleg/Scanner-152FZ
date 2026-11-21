@@ -2,11 +2,11 @@ package com.example.safecopy
 
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.safecopy.domain.auth.SessionManager
 import com.example.safecopy.ui.navigation.SafeCopyNavHost
@@ -15,7 +15,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+// FragmentActivity, а не ComponentActivity: этого требует BiometricPrompt.
+class MainActivity : FragmentActivity() {
 
     @Inject
     lateinit var sessionManager: SessionManager

@@ -19,6 +19,17 @@
     <string name="lock_locked_out">Слишком много попыток. Повторите через %1$d с</string>
     <string name="lock_biometric">Войти по отпечатку</string>
     <string name="lock_backspace">Стереть</string>
+    <string name="lock_error_biometric_changed">Биометрия на телефоне изменилась. Войдите по PIN-коду и включите вход по отпечатку заново</string>
+    <string name="lock_error_biometric_failed">Не удалось войти по биометрии</string>
+    <string name="lock_error_storage">Не удалось открыть хранилище ключей</string>
+
+    <!-- BiometricPrompt -->
+    <string name="biometric_unlock_title">Подтвердите личность</string>
+    <string name="biometric_unlock_subtitle">Чтобы открыть хранилище SafeCopy</string>
+    <string name="biometric_unlock_negative">Использовать PIN-код</string>
+    <string name="biometric_enroll_title">Вход по отпечатку</string>
+    <string name="biometric_enroll_subtitle">Подтвердите, чтобы привязать биометрию к ключу хранилища</string>
+    <string name="biometric_enroll_negative">Отмена</string>
 
     <!-- Навигация -->
     <string name="tab_documents">Документы</string>
@@ -69,6 +80,8 @@
     <string name="settings_watermark_template_summary">«КОПИЯ · {получатель} · {цель}…»</string>
     <string name="settings_backup">Экспорт резервной копии</string>
     <string name="settings_backup_summary">Зашифрованный файл .scbak</string>
+    <string name="settings_biometric_unavailable">Сначала добавьте отпечаток или лицо в настройках телефона</string>
+    <string name="settings_biometric_failed">Не удалось включить вход по биометрии</string>
     <string name="settings_wipe">Удалить все данные</string>
     <string name="settings_wipe_summary">Документы, журнал и ключи</string>
     <string name="settings_footer">Приложение не запрашивает доступ к интернету. Все данные обрабатываются на устройстве.</string>

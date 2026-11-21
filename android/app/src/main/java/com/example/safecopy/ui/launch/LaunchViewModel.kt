@@ -3,6 +3,7 @@ package com.example.safecopy.ui.launch
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.safecopy.domain.auth.PinRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +13,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LaunchViewModel @Inject constructor() : ViewModel() {
+class LaunchViewModel @Inject constructor(
+    private val pinRepository: PinRepository,
+) : ViewModel() {
 
     private val _isReady = MutableStateFlow(false)
     val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
@@ -20,7 +23,9 @@ class LaunchViewModel @Inject constructor() : ViewModel() {
     init {
         viewModelScope.launch {
             val startedAt = SystemClock.elapsedRealtime()
-            // TODO(этап 1): инициализация зашифрованного хранилища.
+            // Загрузка Keystore и проверка записи PIN. Ошибку покажет экран входа, здесь не задерживаемся.
+            runCatching { pinRepository.prepare() }
+            // TODO(этап 2): открытие базы SQLCipher — после входа, когда есть мастер-ключ.
             // TODO(этап 4): копирование rus.traineddata из assets в filesDir/tesseract/tessdata.
             val elapsed = SystemClock.elapsedRealtime() - startedAt
             // Логотип должен быть виден, даже если инициализация прошла мгновенно.

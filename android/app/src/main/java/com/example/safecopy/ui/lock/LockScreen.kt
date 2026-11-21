@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.safecopy.R
+import com.example.safecopy.ui.auth.BiometricPromptEffect
 import com.example.safecopy.ui.theme.SafecopyTheme
 
 @Composable
@@ -50,12 +51,16 @@ fun LockRouteScreen(
     LaunchedEffect(state.isUnlocked) {
         if (state.isUnlocked) onUnlocked()
     }
+    BiometricPromptEffect(
+        request = state.biometricRequest,
+        onAuthenticated = viewModel::onBiometricAuthenticated,
+        onError = viewModel::onBiometricError,
+    )
     LockScreen(
         state = state,
         onDigit = viewModel::onDigit,
         onBackspace = viewModel::onBackspace,
-        // TODO(этап 1): BiometricPrompt + CryptoObject, кнопка видна только если биометрия включена и доступна.
-        onBiometric = null,
+        onBiometric = if (state.isBiometricAvailable) viewModel::onBiometricClick else null,
     )
 }
 
@@ -107,6 +112,9 @@ fun LockScreen(
                         stringResource(R.string.lock_locked_out, state.lockoutSecondsLeft)
                     state.error == LockError.Mismatch -> stringResource(R.string.lock_error_mismatch)
                     state.error == LockError.WrongPin -> stringResource(R.string.lock_error_wrong)
+                    state.error == LockError.BiometricChanged -> stringResource(R.string.lock_error_biometric_changed)
+                    state.error == LockError.BiometricFailed -> stringResource(R.string.lock_error_biometric_failed)
+                    state.error == LockError.Storage -> stringResource(R.string.lock_error_storage)
                     else -> null
                 }
                 if (message != null) {

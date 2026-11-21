@@ -66,6 +66,11 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
 
+    // Вход по биометрии (этап 1). BiometricPrompt требует FragmentActivity; fragment-ktx берём свежий,
+    // biometric 1.1.0 сам по себе тянет fragment 1.2.x.
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.fragment.ktx)
+
     // Съёмка документа (этап 3)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)

@@ -15,11 +15,15 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -29,13 +33,32 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.safecopy.R
+import com.example.safecopy.ui.auth.BiometricPromptEffect
 import com.example.safecopy.ui.theme.SafecopyTheme
 
 @Composable
 fun SettingsRouteScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val messageText = when (state.message) {
+        SettingsMessage.BiometricUnavailable -> stringResource(R.string.settings_biometric_unavailable)
+        SettingsMessage.BiometricFailed -> stringResource(R.string.settings_biometric_failed)
+        null -> null
+    }
+    LaunchedEffect(messageText) {
+        if (messageText != null) {
+            snackbarHostState.showSnackbar(messageText)
+            viewModel.onMessageShown()
+        }
+    }
+    BiometricPromptEffect(
+        request = state.biometricRequest,
+        onAuthenticated = viewModel::onBiometricAuthenticated,
+        onError = viewModel::onBiometricError,
+    )
     SettingsScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBiometricChange = viewModel::setBiometricEnabled,
         onBlockScreenshotsChange = viewModel::setBlockScreenshots,
         onHideInRecentsChange = viewModel::setHideInRecents,
@@ -50,9 +73,11 @@ fun SettingsScreen(
     onBlockScreenshotsChange: (Boolean) -> Unit,
     onHideInRecentsChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(title = { Text(stringResource(R.string.settings_title), fontWeight = FontWeight.SemiBold) })
         },
