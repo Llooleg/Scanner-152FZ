@@ -18,12 +18,13 @@ data object JournalRoute
 @Serializable
 data object SettingsRoute
 
-// Вложенный граф конвейера создания копии
-@Serializable
-data object CopyFlowRoute
-
+/** Съёмка нового документа. После сохранения в хранилище открывается конвейер копии. */
 @Serializable
 data object ScanRoute
+
+/** Вложенный граф конвейера создания копии для сохранённого документа. */
+@Serializable
+data class CopyFlowRoute(val documentId: Long)
 
 @Serializable
 data object MaskRoute

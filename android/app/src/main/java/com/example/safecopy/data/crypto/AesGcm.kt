@@ -45,8 +45,17 @@ object AesGcm {
 
     fun seal(cipher: Cipher, plaintext: ByteArray): SealedBox = SealedBox(cipher.iv, cipher.doFinal(plaintext))
 
-    fun encrypt(key: SecretKey, plaintext: ByteArray): SealedBox = seal(encryptCipher(key), plaintext)
+    /** [aad] — открытые данные, к которым привязан шифртекст (например, имя файла): подменить их незаметно нельзя. */
+    fun encrypt(key: SecretKey, plaintext: ByteArray, aad: ByteArray? = null): SealedBox {
+        val cipher = encryptCipher(key)
+        aad?.let(cipher::updateAAD)
+        return seal(cipher, plaintext)
+    }
 
-    /** @throws javax.crypto.AEADBadTagException если ключ не тот или данные подменены. */
-    fun decrypt(key: SecretKey, box: SealedBox): ByteArray = decryptCipher(key, box.iv).doFinal(box.ciphertext)
+    /** @throws javax.crypto.AEADBadTagException если ключ не тот, данные подменены или [aad] не совпадает. */
+    fun decrypt(key: SecretKey, box: SealedBox, aad: ByteArray? = null): ByteArray {
+        val cipher = decryptCipher(key, box.iv)
+        aad?.let(cipher::updateAAD)
+        return cipher.doFinal(box.ciphertext)
+    }
 }

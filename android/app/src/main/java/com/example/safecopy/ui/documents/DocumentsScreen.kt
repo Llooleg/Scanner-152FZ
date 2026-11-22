@@ -53,10 +53,11 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun DocumentsRouteScreen(
     onScanClick: () -> Unit,
+    onDocumentClick: (Long) -> Unit,
     viewModel: DocumentsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    DocumentsScreen(state = state, onScanClick = onScanClick)
+    DocumentsScreen(state = state, onScanClick = onScanClick, onDocumentClick = onDocumentClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +65,7 @@ fun DocumentsRouteScreen(
 fun DocumentsScreen(
     state: DocumentsUiState,
     onScanClick: () -> Unit,
+    onDocumentClick: (Long) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -104,10 +106,12 @@ fun DocumentsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item { StorageBanner() }
-            if (state.documents.isEmpty()) {
+            if (state.documents.isEmpty() && !state.isLoading) {
                 item {
                     Text(
-                        text = stringResource(R.string.documents_empty),
+                        text = stringResource(
+                            if (state.loadFailed) R.string.documents_load_failed else R.string.documents_empty
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -117,7 +121,7 @@ fun DocumentsScreen(
                     )
                 }
             } else {
-                items(state.documents, key = { it.id }) { DocumentCard(it) }
+                items(state.documents, key = { it.id }) { DocumentCard(it, onClick = { onDocumentClick(it.id) }) }
             }
         }
     }
@@ -148,8 +152,8 @@ private fun StorageBanner() {
 private val DateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
 @Composable
-private fun DocumentCard(document: Document) {
-    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+private fun DocumentCard(document: Document, onClick: () -> Unit) {
+    OutlinedCard(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,

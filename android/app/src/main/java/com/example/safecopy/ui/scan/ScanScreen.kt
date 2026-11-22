@@ -68,6 +68,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -110,10 +111,17 @@ private const val MAX_TILT_DEGREES = 3f
 @Composable
 fun ScanRouteScreen(
     onBack: () -> Unit,
-    onPagesCaptured: (List<Bitmap>) -> Unit,
+    onDocumentSaved: (documentId: Long) -> Unit,
     viewModel: ScanViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val currentOnDocumentSaved by rememberUpdatedState(onDocumentSaved)
+    LaunchedEffect(state.savedDocumentId) {
+        state.savedDocumentId?.let(currentOnDocumentSaved)
+    }
+    if (state.isTypePickerVisible) {
+        DocumentTypeSheet(onTypeSelected = viewModel::onTypeSelected, onDismiss = viewModel::onTypePickerDismiss)
+    }
     val context = LocalContext.current
     val activity = LocalActivity.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -176,7 +184,7 @@ fun ScanRouteScreen(
         hasFlash = hasFlash,
         preview = { AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize()) },
         onBack = onBack,
-        onNext = { onPagesCaptured(state.pages) },
+        onNext = viewModel::onNextClick,
         onShutter = viewModel::onShutterClick,
         onGallery = {
             galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -233,6 +241,7 @@ fun ScanScreen(
                 ScanMessage.CaptureFailed -> R.string.scan_error_capture
                 ScanMessage.ImportFailed -> R.string.scan_error_import
                 ScanMessage.ScannerUnavailable -> R.string.scan_error_scanner
+                ScanMessage.SaveFailed -> R.string.scan_error_save
             }
         )
     }
@@ -348,7 +357,7 @@ fun ScanScreen(
             }
             Button(
                 onClick = onNext,
-                enabled = state.pages.isNotEmpty() && !state.isProcessing,
+                enabled = state.pages.isNotEmpty() && !state.isProcessing && !state.isSaving,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -362,6 +371,7 @@ fun ScanScreen(
 
 @Composable
 private fun statusText(state: ScanUiState): String = when {
+    state.isSaving -> stringResource(R.string.scan_hint_saving)
     !state.canCaptureMore -> stringResource(R.string.scan_hint_max_pages, ScanUiState.MAX_PAGES)
     state.isProcessing -> stringResource(R.string.scan_hint_processing)
     state.waitingForNextPage -> stringResource(R.string.scan_hint_next_page)

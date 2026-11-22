@@ -39,6 +39,7 @@
     <!-- Документы -->
     <string name="documents_title">Мои документы</string>
     <string name="documents_storage_banner">Документы хранятся только на этом устройстве в зашифрованном виде</string>
+    <string name="documents_load_failed">Не удалось открыть хранилище документов</string>
     <string name="documents_empty">Пока нет документов.\nОтсканируйте паспорт, СНИЛС или другой документ.</string>
     <string name="documents_scan">Сканировать</string>
     <string name="document_updated">обновлён %1$s</string>
@@ -121,5 +122,9 @@
     <string name="scan_error_camera">Камера недоступна</string>
     <string name="scan_error_capture">Не удалось сделать снимок</string>
     <string name="scan_error_import">Не удалось загрузить изображение</string>
+    <string name="scan_error_save">Не удалось сохранить документ в хранилище</string>
+    <string name="scan_hint_saving">Шифрование и сохранение…</string>
+    <string name="scan_type_title">Какой это документ?</string>
+    <string name="scan_type_subtitle">Документ будет сохранён в зашифрованном хранилище на этом телефоне</string>
     <string name="scan_error_scanner">Системный сканер недоступен: нужны сервисы Google Play</string>
 </resources>

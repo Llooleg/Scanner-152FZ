@@ -3,6 +3,7 @@ package com.example.safecopy.domain.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,6 +19,7 @@ class SessionManager @Inject constructor() {
     val isUnlocked: StateFlow<Boolean> = _isUnlocked.asStateFlow()
 
     private var masterKey: MasterKey? = null
+    private val lockListeners = CopyOnWriteArrayList<() -> Unit>()
 
     @Synchronized
     fun unlock(key: MasterKey) {
@@ -30,8 +32,14 @@ class SessionManager @Inject constructor() {
     @Synchronized
     fun requireMasterKey(): MasterKey = checkNotNull(masterKey) { "Сессия заблокирована" }
 
+    /** Вызывается при блокировке до затирания ключа: здесь закрываются база и прочие ресурсы сессии. */
+    fun addLockListener(listener: () -> Unit) {
+        lockListeners += listener
+    }
+
     @Synchronized
     fun lock() {
+        lockListeners.forEach { it() }
         masterKey?.wipe()
         masterKey = null
         _isUnlocked.value = false

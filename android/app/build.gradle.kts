@@ -4,6 +4,12 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.room)
+}
+
+room {
+    // Схемы БД кладутся в репозиторий: по ним пишутся и проверяются миграции.
+    schemaDirectory("$projectDir/schemas")
 }
 
 android {
@@ -70,6 +76,13 @@ dependencies {
     // biometric 1.1.0 сам по себе тянет fragment 1.2.x.
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.fragment.ktx)
+
+    // Зашифрованное хранилище (этап 2): Room поверх SQLCipher
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.sqlite)
+    implementation(libs.sqlcipher.android)
 
     // Съёмка документа (этап 3)
     implementation(libs.androidx.camera.camera2)

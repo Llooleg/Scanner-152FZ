@@ -16,6 +16,9 @@ import com.example.safecopy.processing.scan.GrayFrame
 import com.example.safecopy.processing.scan.PerspectiveCorrector
 import com.example.safecopy.processing.scan.TiltSensor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.example.safecopy.domain.documents.DocumentRepository
+import com.example.safecopy.domain.model.DocumentType
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +32,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class ScanMessage { CameraUnavailable, CaptureFailed, ImportFailed, ScannerUnavailable }
+enum class ScanMessage { CameraUnavailable, CaptureFailed, ImportFailed, ScannerUnavailable, SaveFailed }
 
 data class ScanUiState(
     val quad: Quad? = null,
@@ -43,6 +46,11 @@ data class ScanUiState(
     val waitingForNextPage: Boolean = false,
     val pages: List<Bitmap> = emptyList(),
     val message: ScanMessage? = null,
+    /** Шторка выбора типа перед сохранением. TODO(этап 4): подставлять тип, найденный распознаванием. */
+    val isTypePickerVisible: Boolean = false,
+    val isSaving: Boolean = false,
+    /** Документ сохранён в хранилище — экран переходит к маскированию. */
+    val savedDocumentId: Long? = null,
 ) {
     val canCaptureMore: Boolean get() = pages.size < MAX_PAGES
 
@@ -58,6 +66,7 @@ class ScanViewModel @Inject constructor(
     private val corrector: PerspectiveCorrector,
     private val bitmapLoader: BitmapLoader,
     private val tiltSensor: TiltSensor,
+    private val documentRepository: DocumentRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScanUiState(isTiltSensorAvailable = tiltSensor.isAvailable))
@@ -93,7 +102,7 @@ class ScanViewModel @Inject constructor(
         _uiState.update { it.copy(quad = quad, autoCaptureState = autoState, waitingForNextPage = waiting) }
 
         if (autoState == AutoCaptureState.Ready && state.autoCaptureEnabled && !waiting &&
-            !state.isProcessing && state.canCaptureMore
+            !state.isProcessing && !state.isSaving && !state.isTypePickerVisible && state.canCaptureMore
         ) {
             _uiState.update { it.copy(isProcessing = true) }
             captureRequests.trySend(Unit)
@@ -102,7 +111,7 @@ class ScanViewModel @Inject constructor(
 
     fun onShutterClick() {
         val state = _uiState.value
-        if (state.isProcessing || !state.canCaptureMore) return
+        if (state.isProcessing || state.isSaving || !state.canCaptureMore) return
         _uiState.update { it.copy(isProcessing = true) }
         captureRequests.trySend(Unit)
     }
@@ -157,6 +166,33 @@ class ScanViewModel @Inject constructor(
 
     fun onRemovePage(index: Int) {
         _uiState.update { state -> state.copy(pages = state.pages.filterIndexed { i, _ -> i != index }) }
+    }
+
+    fun onNextClick() {
+        val state = _uiState.value
+        if (state.pages.isEmpty() || state.isProcessing || state.isSaving) return
+        _uiState.update { it.copy(isTypePickerVisible = true) }
+    }
+
+    fun onTypePickerDismiss() {
+        _uiState.update { it.copy(isTypePickerVisible = false) }
+    }
+
+    fun onTypeSelected(type: DocumentType) {
+        val pages = _uiState.value.pages
+        if (pages.isEmpty() || _uiState.value.isSaving) return
+        _uiState.update { it.copy(isTypePickerVisible = false, isSaving = true) }
+        viewModelScope.launch {
+            try {
+                val id = documentRepository.save(type, pages)
+                _uiState.update { it.copy(isSaving = false, savedDocumentId = id) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Не удалось сохранить документ", e)
+                _uiState.update { it.copy(isSaving = false, message = ScanMessage.SaveFailed) }
+            }
+        }
     }
 
     fun onAutoCaptureToggle() {

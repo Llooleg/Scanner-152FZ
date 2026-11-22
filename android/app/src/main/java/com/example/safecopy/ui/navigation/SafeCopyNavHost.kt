@@ -124,22 +124,27 @@ fun SafeCopyNavHost(
             }
 
             composable<DocumentsRoute> {
-                DocumentsRouteScreen(onScanClick = { navController.navigate(CopyFlowRoute) })
+                DocumentsRouteScreen(
+                    onScanClick = { navController.navigate(ScanRoute) },
+                    onDocumentClick = { id -> navController.navigate(CopyFlowRoute(id)) },
+                )
             }
             composable<JournalRoute> { JournalScreen() }
             composable<SettingsRoute> { SettingsRouteScreen() }
 
-            navigation<CopyFlowRoute>(startDestination = ScanRoute) {
-                composable<ScanRoute> { entry ->
-                    val flow = navController.copyFlowViewModel(entry)
-                    ScanRouteScreen(
-                        onBack = { navController.popBackStack() },
-                        onPagesCaptured = { pages ->
-                            flow.setPages(pages)
-                            navController.navigate(MaskRoute)
-                        },
-                    )
-                }
+            composable<ScanRoute> {
+                ScanRouteScreen(
+                    onBack = { navController.popBackStack() },
+                    onDocumentSaved = { id ->
+                        // Съёмка убирается из стека: «Назад» из маскирования ведёт к списку, а не к уже сохранённым кадрам.
+                        navController.navigate(CopyFlowRoute(id)) {
+                            popUpTo(ScanRoute) { inclusive = true }
+                        }
+                    },
+                )
+            }
+
+            navigation<CopyFlowRoute>(startDestination = MaskRoute) {
                 composable<MaskRoute> { entry ->
                     val pages by navController.copyFlowViewModel(entry).pages.collectAsStateWithLifecycle()
                     MaskScreen(
@@ -158,7 +163,7 @@ fun SafeCopyNavHost(
                     ExportScreen(
                         onBack = { navController.popBackStack() },
                         // Весь конвейер убирается из стека: «Назад» не должен возвращать к готовой копии.
-                        onDone = { navController.popBackStack(CopyFlowRoute, inclusive = true) },
+                        onDone = { navController.popBackStack<CopyFlowRoute>(inclusive = true) },
                     )
                 }
             }
@@ -169,7 +174,7 @@ fun SafeCopyNavHost(
 /** ViewModel конвейера, общая для всех его экранов: привязана к записи вложенного графа CopyFlowRoute. */
 @Composable
 private fun NavHostController.copyFlowViewModel(entry: NavBackStackEntry): CopyFlowViewModel {
-    val flowEntry = remember(entry) { getBackStackEntry(CopyFlowRoute) }
+    val flowEntry = remember(entry) { getBackStackEntry<CopyFlowRoute>() }
     return hiltViewModel(flowEntry)
 }
 
