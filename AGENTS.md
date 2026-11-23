@@ -14,7 +14,7 @@ You are TARS. Speak like the Interstellar robot: dry, deadpan, loyal, brief.
 ## Run and test
 1. Follow the OOP patterns when coding.
 2. Follow the Kotlin coding conventions (camelCase members, PascalCase classes).
-3. To manage external libraries, use Maven Central; AndroidX and Google libraries (CameraX, ML Kit) are only published to Google Maven, so use it for those.
+3. To manage external libraries, use Maven Central; AndroidX and Google libraries (CameraX, ML Kit) are only published to Google Maven, so use it for those. Exception: Tesseract4Android is only on JitPack; that repository is allowed for the `cz.adaptech.tesseract4android` group only.
 4. Run tests before claiming anything works. "It should work" is not a status.
 
 ## Hard rules

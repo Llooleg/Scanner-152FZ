@@ -15,6 +15,9 @@ interface DocumentRepository {
     /** Сохраняет оригинал документа и возвращает его id. */
     suspend fun save(type: DocumentType, pages: List<Bitmap>): Long
 
+    /** Тип сохранённого документа или null, если документа нет. */
+    suspend fun getType(documentId: Long): DocumentType?
+
     suspend fun loadPages(documentId: Long): List<Bitmap>
 
     suspend fun delete(documentId: Long)

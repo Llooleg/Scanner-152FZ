@@ -90,12 +90,40 @@
     <!-- Конвейер создания копии -->
     <string name="flow_scan_title">Съёмка документа</string>
     <string name="flow_mask_title">Маскирование</string>
-    <string name="flow_mask_description">Распознавание типа документа (Tesseract), автоматический поиск полей и закрашивание лишних данных.</string>
     <string name="flow_watermark_title">Водяной знак</string>
     <string name="flow_watermark_description">Получатель, цель, дата и уникальный код копии по диагонали на всей площади документа.</string>
     <string name="flow_export_title">Экспорт копии</string>
     <string name="flow_export_description">PDF или JPEG без метаданных, отправка через системное меню «Поделиться» и запись в журнал.</string>
     <string name="flow_pages_received">Получено страниц: %1$d</string>
+
+    <!-- Маскирование -->
+    <string name="mask_recognizing">Распознавание документа…</string>
+    <string name="mask_rendering">Закрашивание…</string>
+    <string name="mask_load_failed">Не удалось открыть документ</string>
+    <string name="mask_page">Стр. %1$d</string>
+    <string name="mask_detected">Распознан документ: %1$s</string>
+    <string name="mask_type_manual">Тип документа: %1$s</string>
+    <string name="mask_type_mismatch">Тип документа: %1$s (по тексту похож на «%2$s»)</string>
+    <string name="mask_recognition_failed">Текст распознать не удалось — поля закрашены по шаблону</string>
+    <string name="mask_field_residence">Место жительства</string>
+    <string name="mask_field_series_number">Серия и номер</string>
+    <string name="mask_field_number">Номер</string>
+    <string name="mask_field_division">Код подразделения</string>
+    <string name="mask_field_birthplace">Место рождения</string>
+    <string name="mask_field_photo">Фото</string>
+    <string name="mask_hide_fully">Скрыть полностью</string>
+    <string name="mask_keep_last4">Оставить 4 последние цифры</string>
+    <string name="mask_hide">Скрыть</string>
+    <string name="mask_show">Показывать</string>
+    <string name="mask_number_last4">Кроме 4 последних</string>
+    <string name="mask_number_full">Полностью</string>
+    <string name="mask_number_fallback">Не везде удалось найти цифры номера — там номер скрыт полностью</string>
+    <string name="mask_no_fields">Для этого типа документа поля не размечены. Закрасьте нужные области вручную.</string>
+    <string name="mask_draw">Закрасить вручную</string>
+    <string name="mask_draw_done">Готово</string>
+    <string name="mask_undo">Отменить</string>
+    <string name="mask_draw_hint">Проведите пальцем по области, которую нужно закрасить</string>
+    <string name="mask_check_hint">Поля ищутся по шаблону бланка и могут быть закрашены неточно. Проверьте копию и при необходимости закрасьте лишнее вручную.</string>
 
     <!-- Съёмка -->
     <string name="scan_page_number">Страница %1$d</string>
@@ -126,5 +154,9 @@
     <string name="scan_hint_saving">Шифрование и сохранение…</string>
     <string name="scan_type_title">Какой это документ?</string>
     <string name="scan_type_subtitle">Документ будет сохранён в зашифрованном хранилище на этом телефоне</string>
+    <string name="scan_type_recognizing">Определяем тип по тексту…</string>
+    <string name="scan_type_recognized">Тип определён по тексту — проверьте</string>
+    <string name="scan_type_unknown">Тип определить не удалось — выберите вручную</string>
+    <string name="scan_type_suggested">Определён распознаванием</string>
     <string name="scan_error_scanner">Системный сканер недоступен: нужны сервисы Google Play</string>
 </resources>

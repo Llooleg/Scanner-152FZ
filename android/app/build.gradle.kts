@@ -84,6 +84,9 @@ dependencies {
     implementation(libs.androidx.sqlite)
     implementation(libs.sqlcipher.android)
 
+    // Распознавание текста офлайн (этап 4). Модель rus.traineddata лежит в assets/tessdata.
+    implementation(libs.tesseract4android)
+
     // Съёмка документа (этап 3)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)

@@ -64,6 +64,9 @@ abstract class DocumentDao {
     )
     abstract fun observeSummaries(): Flow<List<DocumentSummary>>
 
+    @Query("SELECT type FROM documents WHERE id = :documentId")
+    abstract suspend fun type(documentId: Long): String?
+
     @Query("SELECT * FROM pages WHERE document_id = :documentId ORDER BY page_index")
     abstract suspend fun pages(documentId: Long): List<PageEntity>
 

@@ -120,7 +120,12 @@ fun ScanRouteScreen(
         state.savedDocumentId?.let(currentOnDocumentSaved)
     }
     if (state.isTypePickerVisible) {
-        DocumentTypeSheet(onTypeSelected = viewModel::onTypeSelected, onDismiss = viewModel::onTypePickerDismiss)
+        DocumentTypeSheet(
+            isRecognizing = state.isRecognizingType,
+            suggestedType = state.suggestedType,
+            onTypeSelected = viewModel::onTypeSelected,
+            onDismiss = viewModel::onTypePickerDismiss,
+        )
     }
     val context = LocalContext.current
     val activity = LocalActivity.current

@@ -34,7 +34,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.safecopy.R
 import com.example.safecopy.ui.copyflow.ExportScreen
-import com.example.safecopy.ui.copyflow.MaskScreen
+import com.example.safecopy.ui.mask.MaskRouteScreen
 import com.example.safecopy.ui.copyflow.CopyFlowViewModel
 import com.example.safecopy.ui.copyflow.WatermarkScreen
 import com.example.safecopy.ui.documents.DocumentsRouteScreen
@@ -146,15 +146,23 @@ fun SafeCopyNavHost(
 
             navigation<CopyFlowRoute>(startDestination = MaskRoute) {
                 composable<MaskRoute> { entry ->
-                    val pages by navController.copyFlowViewModel(entry).pages.collectAsStateWithLifecycle()
-                    MaskScreen(
-                        pages = pages,
+                    val flow = navController.copyFlowViewModel(entry)
+                    val source by flow.source.collectAsStateWithLifecycle()
+                    val loadFailed by flow.loadFailed.collectAsStateWithLifecycle()
+                    MaskRouteScreen(
+                        source = source,
+                        loadFailed = loadFailed,
                         onBack = { navController.popBackStack() },
-                        onNext = { navController.navigate(WatermarkRoute) },
+                        onMasked = { pages ->
+                            flow.setMaskedPages(pages)
+                            navController.navigate(WatermarkRoute)
+                        },
                     )
                 }
-                composable<WatermarkRoute> {
+                composable<WatermarkRoute> { entry ->
+                    val masked by navController.copyFlowViewModel(entry).maskedPages.collectAsStateWithLifecycle()
                     WatermarkScreen(
+                        pages = masked,
                         onBack = { navController.popBackStack() },
                         onNext = { navController.navigate(ExportRoute) },
                     )

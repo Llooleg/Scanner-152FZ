@@ -36,21 +36,21 @@ import com.example.safecopy.R
 import com.example.safecopy.ui.theme.SafecopyTheme
 
 /*
- * Заглушки шагов конвейера «Маскирование → Водяной знак → Экспорт» (съёмка — ui/scan/ScanScreen.kt).
+ * Заглушки шагов конвейера «Водяной знак → Экспорт» (маскирование — ui/mask/MaskScreen.kt).
  * Каждая будет заменена полноценным экраном со своей ViewModel. Общее состояние конвейера
  * хранится в CopyFlowViewModel, привязанной к вложенному графу навигации.
  */
 
 @Composable
-fun MaskScreen(pages: List<Bitmap>, onBack: () -> Unit, onNext: () -> Unit) = FlowStepPlaceholder(
-    titleRes = R.string.flow_mask_title,
-    descriptionRes = R.string.flow_mask_description,
-    stage = 4,
+fun WatermarkScreen(pages: List<Bitmap>, onBack: () -> Unit, onNext: () -> Unit) = FlowStepPlaceholder(
+    titleRes = R.string.flow_watermark_title,
+    descriptionRes = R.string.flow_watermark_description,
+    stage = 5,
     actionRes = R.string.action_next,
     onBack = onBack,
     onAction = onNext,
 ) {
-    // Временно: показываем страницы, полученные со съёмки, чтобы было видно, что конвейер передаёт данные.
+    // Временно: показываем страницы после маскирования, чтобы было видно, что конвейер передаёт данные.
     Text(
         text = stringResource(R.string.flow_pages_received, pages.size),
         style = MaterialTheme.typography.titleSmall,
@@ -73,16 +73,6 @@ fun MaskScreen(pages: List<Bitmap>, onBack: () -> Unit, onNext: () -> Unit) = Fl
     }
     Spacer(Modifier.height(24.dp))
 }
-
-@Composable
-fun WatermarkScreen(onBack: () -> Unit, onNext: () -> Unit) = FlowStepPlaceholder(
-    titleRes = R.string.flow_watermark_title,
-    descriptionRes = R.string.flow_watermark_description,
-    stage = 5,
-    actionRes = R.string.action_next,
-    onBack = onBack,
-    onAction = onNext,
-)
 
 @Composable
 fun ExportScreen(onBack: () -> Unit, onDone: () -> Unit) = FlowStepPlaceholder(
@@ -153,5 +143,5 @@ private fun FlowStepPlaceholder(
 @Preview(showBackground = true)
 @Composable
 private fun FlowStepPlaceholderPreview() {
-    SafecopyTheme { MaskScreen(pages = emptyList(), onBack = {}, onNext = {}) }
+    SafecopyTheme { WatermarkScreen(pages = emptyList(), onBack = {}, onNext = {}) }
 }

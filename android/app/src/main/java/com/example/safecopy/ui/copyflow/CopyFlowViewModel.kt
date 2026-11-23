@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.safecopy.domain.documents.DocumentRepository
+import com.example.safecopy.domain.model.DocumentType
 import com.example.safecopy.ui.navigation.CopyFlowRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -15,6 +16,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+/** Оригинал документа, расшифрованный в память для создания копии. */
+class CopySource(val documentId: Long, val type: DocumentType, val pages: List<Bitmap>)
 
 /**
  * Общее состояние конвейера «Маскирование → Водяной знак → Экспорт» для сохранённого документа.
@@ -29,19 +33,34 @@ class CopyFlowViewModel @Inject constructor(
 
     val documentId: Long = savedStateHandle.toRoute<CopyFlowRoute>().documentId
 
-    private val _pages = MutableStateFlow<List<Bitmap>>(emptyList())
-    val pages: StateFlow<List<Bitmap>> = _pages.asStateFlow()
+    private val _source = MutableStateFlow<CopySource?>(null)
+    val source: StateFlow<CopySource?> = _source.asStateFlow()
+
+    private val _loadFailed = MutableStateFlow(false)
+    val loadFailed: StateFlow<Boolean> = _loadFailed.asStateFlow()
+
+    /** Страницы после маскирования — вход для водяного знака. */
+    private val _maskedPages = MutableStateFlow<List<Bitmap>>(emptyList())
+    val maskedPages: StateFlow<List<Bitmap>> = _maskedPages.asStateFlow()
 
     init {
         viewModelScope.launch {
             try {
-                _pages.value = documentRepository.loadPages(documentId)
+                val type = documentRepository.getType(documentId) ?: error("Документ $documentId не найден")
+                val pages = documentRepository.loadPages(documentId)
+                check(pages.isNotEmpty()) { "У документа нет страниц" }
+                _source.value = CopySource(documentId, type, pages)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.w(TAG, "Не удалось загрузить страницы документа", e)
+                Log.w(TAG, "Не удалось загрузить документ", e)
+                _loadFailed.value = true
             }
         }
+    }
+
+    fun setMaskedPages(pages: List<Bitmap>) {
+        _maskedPages.value = pages
     }
 
     private companion object {

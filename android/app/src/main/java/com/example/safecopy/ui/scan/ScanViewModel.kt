@@ -6,20 +6,24 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.safecopy.domain.documents.DocumentRepository
+import com.example.safecopy.domain.model.DocumentType
+import com.example.safecopy.domain.recognition.Recognition
+import com.example.safecopy.domain.recognition.RecognitionCache
 import com.example.safecopy.domain.scan.AutoCaptureController
 import com.example.safecopy.domain.scan.AutoCaptureState
 import com.example.safecopy.domain.scan.Quad
 import com.example.safecopy.domain.scan.TiltReading
+import com.example.safecopy.processing.recognition.DocumentRecognizer
 import com.example.safecopy.processing.scan.BitmapLoader
 import com.example.safecopy.processing.scan.DocumentDetector
 import com.example.safecopy.processing.scan.GrayFrame
 import com.example.safecopy.processing.scan.PerspectiveCorrector
 import com.example.safecopy.processing.scan.TiltSensor
 import dagger.hilt.android.lifecycle.HiltViewModel
-import com.example.safecopy.domain.documents.DocumentRepository
-import com.example.safecopy.domain.model.DocumentType
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,8 +50,12 @@ data class ScanUiState(
     val waitingForNextPage: Boolean = false,
     val pages: List<Bitmap> = emptyList(),
     val message: ScanMessage? = null,
-    /** Шторка выбора типа перед сохранением. TODO(этап 4): подставлять тип, найденный распознаванием. */
+    /** Шторка выбора типа перед сохранением. */
     val isTypePickerVisible: Boolean = false,
+    /** Пока открыта шторка, идёт распознавание, чтобы подсказать тип. */
+    val isRecognizingType: Boolean = false,
+    /** Тип, найденный распознаванием; null — не определён или распознавание ещё идёт. */
+    val suggestedType: DocumentType? = null,
     val isSaving: Boolean = false,
     /** Документ сохранён в хранилище — экран переходит к маскированию. */
     val savedDocumentId: Long? = null,
@@ -67,7 +75,15 @@ class ScanViewModel @Inject constructor(
     private val bitmapLoader: BitmapLoader,
     private val tiltSensor: TiltSensor,
     private val documentRepository: DocumentRepository,
+    private val recognizer: DocumentRecognizer,
+    private val recognitionCache: RecognitionCache,
 ) : ViewModel() {
+
+    private var recognitionJob: Job? = null
+
+    /** Результат распознавания текущего набора страниц: при сохранении уходит в кеш для маскирования. */
+    private var recognition: Recognition? = null
+    private var recognizedPages: List<Bitmap>? = null
 
     private val _uiState = MutableStateFlow(ScanUiState(isTiltSensorAvailable = tiltSensor.isAvailable))
     val uiState: StateFlow<ScanUiState> = _uiState.asStateFlow()
@@ -172,6 +188,39 @@ class ScanViewModel @Inject constructor(
         val state = _uiState.value
         if (state.pages.isEmpty() || state.isProcessing || state.isSaving) return
         _uiState.update { it.copy(isTypePickerVisible = true) }
+        startTypeRecognition(state.pages)
+    }
+
+    /**
+     * Распознаёт страницы, чтобы подсказать тип в шторке. Результат привязан к конкретному набору страниц
+     * (списки страниц неизменяемые, сравниваем по ссылке): после удаления или досъёмки страницы он устаревает.
+     */
+    private fun startTypeRecognition(pages: List<Bitmap>) {
+        val known = recognition
+        if (known != null && recognizedPages === pages) {
+            _uiState.update { it.copy(isRecognizingType = false, suggestedType = known.detectedType) }
+            return
+        }
+        if (recognitionJob?.isActive == true && recognizedPages === pages) return
+        recognitionJob?.cancel()
+        recognition = null
+        recognizedPages = pages
+        _uiState.update { it.copy(isRecognizingType = true, suggestedType = null) }
+        recognitionJob = viewModelScope.launch {
+            try {
+                val result = recognizer.recognize(pages)
+                if (recognizedPages === pages) {
+                    recognition = result
+                    _uiState.update { it.copy(isRecognizingType = false, suggestedType = result.detectedType) }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Подсказки не будет; маскирование попробует распознать ещё раз.
+                Log.w(TAG, "Не удалось распознать тип документа", e)
+                _uiState.update { it.copy(isRecognizingType = false) }
+            }
+        }
     }
 
     fun onTypePickerDismiss() {
@@ -182,9 +231,13 @@ class ScanViewModel @Inject constructor(
         val pages = _uiState.value.pages
         if (pages.isEmpty() || _uiState.value.isSaving) return
         _uiState.update { it.copy(isTypePickerVisible = false, isSaving = true) }
+        // Тип выбран до конца распознавания: не ждём его, маскирование распознает само.
+        val readyRecognition = recognition?.takeIf { recognizedPages === pages }
+        if (readyRecognition == null) recognitionJob?.cancel()
         viewModelScope.launch {
             try {
                 val id = documentRepository.save(type, pages)
+                readyRecognition?.let { recognitionCache.put(id, it) }
                 _uiState.update { it.copy(isSaving = false, savedDocumentId = id) }
             } catch (e: CancellationException) {
                 throw e

@@ -59,6 +59,10 @@ class RoomDocumentRepository(
         }
     }
 
+    override suspend fun getType(documentId: Long): DocumentType? = withContext(ioDispatcher) {
+        dao.type(documentId)?.let(::parseType)
+    }
+
     override suspend fun loadPages(documentId: Long): List<Bitmap> = withContext(ioDispatcher) {
         dao.pages(documentId).map { page ->
             val bytes = pageStore.read(page.fileName)
@@ -83,12 +87,14 @@ class RoomDocumentRepository(
 
     private fun DocumentSummary.toDocument() = Document(
         id = id,
-        type = DocumentType.entries.firstOrNull { it.name == type } ?: DocumentType.OTHER,
+        type = parseType(type),
         pageCount = pageCount,
         updatedAt = Instant.ofEpochMilli(updatedAt).atZone(ZoneId.systemDefault()).toLocalDate(),
         // TODO(этап 7): считать по журналу отправок.
         copiesCount = 0,
     )
+
+    private fun parseType(name: String) = DocumentType.entries.firstOrNull { it.name == name } ?: DocumentType.OTHER
 
     /**
      * Оригинал хранится в JPEG высокого качества: PNG страницы паспорта весит в разы больше.
